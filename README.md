@@ -164,3 +164,87 @@ int main(int argc,char** argv)
     glutMainLoop();
 }
 ```
+# week04
+## 旋轉茶壺
+```C++
+#include <GL/glut.h>
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+        glRotatef(90,0,0,1);///z軸心，90度
+        glutSolidTeapot(0.3);
+    glPopMatrix();
+    glutSwapBuffers();
+}
+int main(int argc,char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week04 旋轉");
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+## 滑鼠旋轉茶壺 滑鼠x座標=旋轉角度
+```C++
+#include <GL/glut.h>
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+        glRotatef(angle,0,0,1);
+        glutSolidTeapot(0.3);
+    glPopMatrix();
+    glutSwapBuffers();
+}
+void motion(int x,int y)
+{
+    angle=x;///角度隨滑鼠移動更改
+    display();
+}
+int main(int argc,char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week04 旋轉");
+    glutDisplayFunc(display);
+    glutMotionFunc(motion);///持續移動的滑鼠事件
+    glutMainLoop();
+}
+```
+## 滑鼠旋轉茶壺 滑鼠x座標!=旋轉角度
+```C++
+#include <GL/glut.h>
+float angle=0,oldX;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+        glRotatef(angle,0,0,1);
+        glutSolidTeapot(0.3);
+    glPopMatrix();
+    glutSwapBuffers();
+}
+void motion(int x,int y)
+{
+    angle+=(x-oldX);
+    oldX=x;
+    display();
+}
+void mouse(int button,int state,int x,int y)
+{
+    oldX=x;///定錨，記錄舊的x座標
+}
+int main(int argc,char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week04 旋轉");
+    glutDisplayFunc(display);
+    glutMotionFunc(motion);///持續移動的滑鼠事件
+    glutMouseFunc(mouse);
+    glutMainLoop();
+}
+```
