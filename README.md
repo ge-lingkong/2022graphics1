@@ -795,3 +795,134 @@ int main(int argc,char** argv)
     glutMainLoop();
 }
 ```
+# week10
+## 背景貼圖
+```C++
+#include<GL/glut.h>
+#include <opencv/highgui.h>
+#include <opencv/cv.h>
+#include <GL/glut.h>
+int myTexture(char * filename)
+{
+    IplImage * img = cvLoadImage(filename);
+    cvCvtColor(img,img, CV_BGR2RGB);
+    glEnable(GL_TEXTURE_2D);
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_RGB, GL_UNSIGNED_BYTE, img->imageData);
+    return id;
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBegin(GL_POLYGON);
+        glTexCoord2f(0,1);  glVertex2f(-1,-1);///左下
+        glTexCoord2f(1,1);  glVertex2f(1,-1);///右下
+        glTexCoord2f(1,0);  glVertex2f(1,1);///右上
+        glTexCoord2f(0,0);  glVertex2f(-1,1);///左上
+    glEnd();///圖片左上角是(0,0)，視窗左下角是(-1,-1)
+    glutSwapBuffers();
+}
+int main(int argc,char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week10 texture background");
+    glutDisplayFunc(display);
+    myTexture("earth.jpg");
+    glutMainLoop();
+}
+```
+## 圓球貼圖，不會轉
+```C++
+#include<GL/glut.h>
+#include <opencv/highgui.h>
+#include <opencv/cv.h>
+#include <GL/glut.h>
+GLUquadric * sphere=NULL;///指到二次曲面的指標
+int myTexture(char * filename)
+{
+    IplImage * img = cvLoadImage(filename);
+    cvCvtColor(img,img, CV_BGR2RGB);
+    glEnable(GL_TEXTURE_2D);
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_RGB, GL_UNSIGNED_BYTE, img->imageData);
+    return id;
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gluQuadricTexture(sphere,1);///二次曲面貼圖(指標,是否貼圖)
+    gluSphere(sphere,1,30,30);///圓球(指標,半徑,直切數,橫切數)
+    glutSwapBuffers();
+}
+int main(int argc,char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week10 texture earth");
+    glutDisplayFunc(display);
+    myTexture("earth.jpg");
+    sphere=gluNewQuadric();///準備二次曲面
+    glutMainLoop();
+}
+```
+## 圓球貼圖，會轉
+```C++
+#include<GL/glut.h>
+#include <opencv/highgui.h>
+#include <opencv/cv.h>
+#include <GL/glut.h>
+GLUquadric * sphere=NULL;
+int myTexture(char * filename)
+{
+    IplImage * img = cvLoadImage(filename);
+    cvCvtColor(img,img, CV_BGR2RGB);
+    glEnable(GL_TEXTURE_2D);
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_RGB, GL_UNSIGNED_BYTE, img->imageData);
+    return id;
+}
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+        glRotatef(90,1,0,0);///轉正地球
+        glRotatef(angle,0,0,1);
+        gluQuadricTexture(sphere,1);
+        gluSphere(sphere,1,30,30);
+    glPopMatrix();
+    glutSwapBuffers();
+    angle+=1;///每次執行都轉1度
+}
+int main(int argc,char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week10 texture earth");
+    glEnable(GL_DEPTH_TEST);///3D深度測試，開了才有3D效果
+    glutIdleFunc(display);///有空就執行display
+    glutDisplayFunc(display);
+    myTexture("earth.jpg");
+    sphere=gluNewQuadric();
+    glutMainLoop();
+}
+```
