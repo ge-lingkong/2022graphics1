@@ -1593,3 +1593,62 @@ int main(int argc, char** argv)
     glutMainLoop();
 }
 ```
+# week15
+## 聲音同步、不同步，PlaySound()只能播wav檔，不能播mp3檔
+```C++
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+    PlaySound("do.wav", NULL, SND_SYNC);///SYNC：等待（聲音完整播完）
+    PlaySound("re.wav", NULL, SND_ASYNC);///ASYNC：不等待（聲音沒播完就執行下一行），適合用於互動
+    PlaySound("mi.wav", NULL, SND_SYNC);
+}
+```
+## 聲音同步
+```C++
+#include <windows.h>
+#include <stdio.h>
+int main()
+{///SYNC：等待（聲音完整播完）
+    printf("PlaySound()之前\n");
+    PlaySound("07042111.wav", NULL, SND_SYNC);///檔案不存在時，會有很小的錯誤聲
+    printf("PlaySound()之後\n");
+}
+```
+## 聲音不同步
+```C++
+#include <windows.h>
+#include <stdio.h>
+int main()
+{///ASYNC：不等待（聲音沒播完就執行下一行），適合用於互動
+    PlaySound("07042111.wav", NULL, SND_ASYNC);
+    while(1)
+    {
+        printf("請輸入數字: ");
+        int N;
+        scanf("%d", &N);
+        if(N==1) PlaySound("do.wav", NULL, SND_ASYNC);
+        if(N==2) PlaySound("re.wav", NULL, SND_ASYNC);
+        if(N==3) PlaySound("mi.wav", NULL, SND_ASYNC);
+    }
+}
+```
+## 聲音mp3
+```C++
+#include <stdio.h>
+#include "CMP3_MCI.h"///下載後放同一目錄使用
+CMP3_MCI mp3;///宣告變數
+int main()
+{
+    mp3.Load("07042111.mp3");
+    mp3.Play();
+    printf("等待輸入數字: ");
+    int N;///用輸入來卡住程式
+    scanf("%d", &N);
+}
+```
+## 
+```C++
+
+```
